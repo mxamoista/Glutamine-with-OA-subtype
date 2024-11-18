@@ -21,14 +21,13 @@ dds1 <- DESeqDataSetFromMatrix(countData = matrix.round1, colData = colData1, de
 res1 <- DESeq(dds1, fitType = 'mean', minReplicatesForReplace = 7, parallel = FALSE) 
 res1 <- results(res1,contrast = c('condition1', 'GLSOE+IL-1b', 'Negative Control+IL-1b'))
 summary(res1) 
-res1 <- data.frame(res1, stringsAsFactors = FALSE, check.names = FALSE)# res格式转化：用data.frame转化为表格形式
-res1 <- res1[order(res1$pvalue, res1$log2FoldChange, decreasing = c(FALSE, TRUE)), ]# 依次按照pvalue值log2FoldChange值进行排序
-# 获取padj（p值经过多重校验校正后的值）小于0.05，表达倍数取以2为对数后大于1或者小于-1的差异表达基因。
-res1_up<- res1[which(res1$log2FoldChange >= 0.58 ),]      # 表达量显著上升的基因
-res1_down<- res1[which(res1$log2FoldChange <= -0.58 ),]    # 表达量显著下降的基因
+res1 <- data.frame(res1, stringsAsFactors = FALSE, check.names = FALSE) #Use data.frame to convert to table form
+res1 <- res1[order(res1$pvalue, res1$log2FoldChange, decreasing = c(FALSE, TRUE)), ]# Sort by pvalue value and log2FoldChange value in order
+res1_up<- res1[which(res1$log2FoldChange >= 0.58 ),]      # Genes with significantly increased expression
+res1_down<- res1[which(res1$log2FoldChange <= -0.58 ),]    # Genes with significantly increased expression
 write.table(res1,file="res1.txt",quote = F,sep="\t")
 res1_total <- rbind(res1_up,res1_down)
-#根据res1 做火山图
+#Plot volcanoplot according to res1
 library(ggplot2)
 library(ggrepel)
 library(dplyr)
@@ -46,13 +45,13 @@ ggplot(res1,aes(x=log2FoldChange,y=Pvalue2,color=threshold))+
     data =res1[c('Mmp3','Adamts5','Gls','Got2'),],
     aes(label =Geneid),fontface="bold", color="black", 
     box.padding=unit(2, "lines"), size=4.5,
-    segment.colour = "grey50")+ theme_classic(base_size = 30)+#???ӹ?ע?ĵ??Ļ?????
-  theme_bw()+#?޸?ͼƬ????
+    segment.colour = "grey50")+ theme_classic(base_size = 30)+
+  theme_bw()+
   theme(
     legend.title = element_blank()#????ʾͼ??????
   )+
-  ylab('-LOG(P-value)')+#?޸?y??????
-  xlab('log2FoldChange')#?޸?x??????
+  ylab('-LOG(P-value)')+
+  xlab('log2FoldChange')
 
 
 
@@ -65,11 +64,10 @@ dds2 <- DESeqDataSetFromMatrix(countData = matrix.round2, colData = colData2, de
 res2 <- DESeq(dds2, fitType = 'mean', minReplicatesForReplace = 7, parallel = FALSE)
 res2 <- results(res2,contrast = c('condition2', 'Negative Control+IL-1b', 'Negative Control'))
 summary(res2) 
-res2 <- data.frame(res2, stringsAsFactors = FALSE, check.names = FALSE)# res格式转化：用data.frame转化为表格形式
-res2 <- res2[order(res2$pvalue, res2$log2FoldChange, decreasing = c(FALSE, TRUE)), ]# 依次按照pvalue值log2FoldChange值进行排序
-# 获取padj（p值经过多重校验校正后的值）小于0.05，表达倍数取以2为对数后大于1或者小于-1的差异表达基因。
-res2_up<- res2[which(res2$log2FoldChange >= 0.58 & res2$pvalue<0.05),]      # 表达量显著上升的基因
-res2_down<- res2[which(res2$log2FoldChange <= -0.58 & res2$pvalue<0.05),]    # 表达量显著下降的基因
+res2 <- data.frame(res2, stringsAsFactors = FALSE, check.names = FALSE)
+res2 <- res2[order(res2$pvalue, res2$log2FoldChange, decreasing = c(FALSE, TRUE)), ]
+res2_up<- res2[which(res2$log2FoldChange >= 0.58 & res2$pvalue<0.05),]      
+res2_down<- res2[which(res2$log2FoldChange <= -0.58 & res2$pvalue<0.05),]    
 res2$Pvalue2<--log10(as.matrix(res2$pvalue))
 res2$Geneid<-rownames(res2)
 library(dplyr)
@@ -82,13 +80,13 @@ ggplot(res2,aes(x=log2FoldChange,y=Pvalue2,color=threshold))+
     data =res2[c('Col2a1','Sox9','Slc1a5'),],
     aes(label =Geneid),fontface="bold", color="black", size=4.5,
     box.padding=unit(2, "lines"),
-    segment.colour = "grey50")+ theme_classic(base_size = 30)+#???ӹ?ע?ĵ??Ļ?????
-  theme_bw()+#?޸?ͼƬ????
+    segment.colour = "grey50")+ theme_classic(base_size = 30)+
+  theme_bw()+
   theme(
-    legend.title = element_blank()#????ʾͼ??????
+    legend.title = element_blank()
   )+
-  ylab('-LOG(P-value)')+#?޸?y??????
-  xlab('log2FoldChange')#?޸?x??????
+  ylab('-LOG(P-value)')+
+  xlab('log2FoldChange')
 
 
 #Third condition NC VS OEIL-1
@@ -100,11 +98,10 @@ dds3 <- DESeqDataSetFromMatrix(countData = matrix.round3, colData = colData3, de
 res3 <- DESeq(dds3, fitType = 'mean', minReplicatesForReplace = 7, parallel = FALSE) 
 res3 <- results(res3,contrast = c('condition3', 'GLSOE+IL-1b', 'Negative Control'))
 summary(res3) 
-res3 <- data.frame(res3, stringsAsFactors = FALSE, check.names = FALSE)# res格式转化：用data.frame转化为表格形式
-res3 <- res3[order(res3$pvalue, res3$log2FoldChange, decreasing = c(FALSE, TRUE)), ]# 依次按照pvalue值log2FoldChange值进行排序
-# 获取padj（p值经过多重校验校正后的值）小于0.05，表达倍数取以2为对数后大于1或者小于-1的差异表达基因。
-res3_up<- res3[which(res3$log2FoldChange >= 0.58 & res3$pvalue<0.05),]      # 表达量显著上升的基因
-res3_down<- res3[which(res3$log2FoldChange <= -0.58 & res3$pvalue<0.05),]    # 表达量显著下降的基因
+res3 <- data.frame(res3, stringsAsFactors = FALSE, check.names = FALSE)
+res3 <- res3[order(res3$pvalue, res3$log2FoldChange, decreasing = c(FALSE, TRUE)), ]
+res3_up<- res3[which(res3$log2FoldChange >= 0.58 & res3$pvalue<0.05),]      
+res3_down<- res3[which(res3$log2FoldChange <= -0.58 & res3$pvalue<0.05),]    
 res3$Pvalue2<--log10(as.matrix(res3$pvalue))
 res3$Geneid<-rownames(res3)
 library(dplyr)
@@ -112,13 +109,13 @@ res3=distinct(res3,Geneid,.keep_all = T)
 res3$threshold = factor(ifelse(res3$'pvalue'<0.05 & abs(res3$log2FoldChange) >= 0.58, ifelse(res3$log2FoldChange>= 0.58,'Up','Down'),'NoSignifi'),levels=c('Up','Down','NoSignifi'))
 ggplot(res3,aes(x=log2FoldChange,y=Pvalue2,color=threshold))+
   geom_point(size=2)+
-  scale_color_manual(values=c("yellow","blue","grey"))+#ȷ????????ɫ
+  scale_color_manual(values=c("yellow","blue","grey"))+
   geom_text_repel(
     data =res3[c('Col2a1','Sox9','Slc1a5'),],
     aes(label =Geneid),fontface="bold", color="black", size=4.5,
     box.padding=unit(2, "lines"),
-    segment.colour = "grey50")+ theme_classic(base_size = 30)+#???ӹ?ע?ĵ??Ļ?????
-  theme_bw()+#?޸?ͼƬ????
+    segment.colour = "grey50")+ theme_classic(base_size = 30)+
+  theme_bw()+
   theme(
     legend.title = element_blank()#????ʾͼ??????
   )+
@@ -134,11 +131,10 @@ dds4 <- DESeqDataSetFromMatrix(countData = matrix.round4, colData = colData4, de
 res4 <- DESeq(dds4, fitType = 'mean', minReplicatesForReplace = 7, parallel = FALSE) 
 res4 <- results(res4,contrast = c('condition4', 'GLSOE', 'Negative Control'))
 summary(res4) 
-res4 <- data.frame(res4, stringsAsFactors = FALSE, check.names = FALSE)# res格式转化：用data.frame转化为表格形式
-res4 <- res4[order(res4$pvalue, res4$log2FoldChange, decreasing = c(FALSE, TRUE)), ]# 依次按照pvalue值log2FoldChange值进行排序
-# 获取padj（p值经过多重校验校正后的值）小于0.05，表达倍数取以2为对数后大于1或者小于-1的差异表达基因。
-res4_up<- res4[which(res4$log2FoldChange >= 0.58 & res4$pvalue<0.05),]      # 表达量显著上升的基因
-res4_down<- res4[which(res4$log2FoldChange <= -0.58 & res4$pvalue<0.05),]    # 表达量显著下降的基因
+res4 <- data.frame(res4, stringsAsFactors = FALSE, check.names = FALSE)
+res4 <- res4[order(res4$pvalue, res4$log2FoldChange, decreasing = c(FALSE, TRUE)), ]
+res4_up<- res4[which(res4$log2FoldChange >= 0.58 & res4$pvalue<0.05),]      
+res4_down<- res4[which(res4$log2FoldChange <= -0.58 & res4$pvalue<0.05),]    
 res4$Pvalue2<--log10(as.matrix(res4$pvalue))
 res4$Geneid<-rownames(res4)
 library(dplyr)
